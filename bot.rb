@@ -3,8 +3,10 @@ require_relative 'config'
 require_relative 'garden'
 
 client = Mastodon::REST::Client.new(base_url: @instance_url, bearer_token: @access_token)
+# client = Mastodon::REST::Client.new(base_url: 'https://scream.supply', bearer_token: '1abf4c42055962c100ec95c0ec423abbc43bd2b1ba41a8ae3bf2627a5c8e9506')
+# client = Mastodon::REST::Client.new(base_url: 'https://botsin.space', bearer_token: '7b7cb571157e0be9f671301ca23791e931c7d1a609f46890347bfa0ae21d9510')
 
-last_toot = client.statuses(2432, limit: 1).first
+last_toot = client.statuses(@id, limit: 1).first
 time = DateTime.parse(last_toot.created_at)
 # We get the previous status and use that to build the Garden object. This way the program doesn't have to have any memory - each time it gets the state of the garden from the status and the status alone. This makes updating the system or the algorithm straightforward, since I don't have to wrangle with a database or anything. As long as it can load the previous tweet, I can change anything else.
 garden = Garden.new(10, 10)
@@ -25,4 +27,5 @@ end.flatten.uniq.shuffle
 
 # Move the garden forward in time
 garden.tick(suggestions)
+print garden.display
 client.create_status(garden.display)
